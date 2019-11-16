@@ -35882,7 +35882,7 @@ function (_Component) {
     value: function componentDidMount() {
       var _this2 = this;
 
-      fetch("http://localhost:3000/api/blocks").then(function (response) {
+      fetch("".concat(document.location.origin, "/api/blocks")).then(function (response) {
         return response.json();
       }).then(function (json) {
         return _this2.setState({
@@ -35976,7 +35976,7 @@ function (_Component) {
     value: function componentDidMount() {
       var _this2 = this;
 
-      fetch("http://localhost:3000/api/wallet-info").then(function (response) {
+      fetch("".concat(document.location.origin, "/api/wallet-info")).then(function (response) {
         return response.json();
       }).then(function (json) {
         return _this2.setState({
@@ -37196,7 +37196,7 @@ function (_Component) {
       var _this$state = _this.state,
           recipient = _this$state.recipient,
           amount = _this$state.amount;
-      fetch("http://localhost:3000/api/transact", {
+      fetch("".concat(document.location.origin, "/api/transact"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -37290,6 +37290,8 @@ var _react = _interopRequireWildcard(require("react"));
 
 var _Transaction = _interopRequireDefault(require("./Transaction"));
 
+var _history = _interopRequireDefault(require("../history"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
@@ -37316,6 +37318,8 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
+var POLL_INTERVAL_MS = 10000;
+
 var TransactionPool =
 /*#__PURE__*/
 function (_Component) {
@@ -37339,12 +37343,24 @@ function (_Component) {
     });
 
     _defineProperty(_assertThisInitialized(_this), "fetchTransactionPoolMap", function () {
-      fetch("http://localhost:3000/api/transaction-pool-map").then(function (response) {
+      fetch("".concat(document.location.origin, "/api/transaction-pool-map")).then(function (response) {
         return response.json();
       }).then(function (json) {
         return _this.setState({
           transactionPoolMap: json
         });
+      });
+    });
+
+    _defineProperty(_assertThisInitialized(_this), "fetchMineTransactions", function () {
+      fetch("".concat(document.location.origin, "/api/mine-transactions")).then(function (response) {
+        if (response.status === 200) {
+          alert("success");
+
+          _history.default.push("/blocks");
+        } else {
+          alert("The mine-transactions block request did not complete");
+        }
       });
     });
 
@@ -37354,7 +37370,12 @@ function (_Component) {
   _createClass(TransactionPool, [{
     key: "componentDidMount",
     value: function componentDidMount() {
+      var _this2 = this;
+
       this.fetchTransactionPoolMap();
+      setInterval(function () {
+        return _this2.fetchTransactionPoolMap();
+      }, POLL_INTERVAL_MS);
     }
   }, {
     key: "render",
@@ -37365,7 +37386,10 @@ function (_Component) {
         }, _react.default.createElement("hr", null), _react.default.createElement(_Transaction.default, {
           transaction: transaction
         }), _react.default.createElement("hr", null));
-      }));
+      }), _react.default.createElement("button", {
+        onClick: this.fetchMineTransactions,
+        className: "btn btn-danger"
+      }, "Mine Transaction"));
     }
   }]);
 
@@ -37374,7 +37398,7 @@ function (_Component) {
 
 var _default = TransactionPool;
 exports.default = _default;
-},{"react":"../../node_modules/react/index.js","./Transaction":"components/Transaction.js"}],"components/App.js":[function(require,module,exports) {
+},{"react":"../../node_modules/react/index.js","./Transaction":"components/Transaction.js","../history":"history.js"}],"components/App.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -37502,7 +37526,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55264" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "56133" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
